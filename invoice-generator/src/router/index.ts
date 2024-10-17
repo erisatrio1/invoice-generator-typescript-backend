@@ -4,6 +4,7 @@ import { InvoiceService } from "../service/invoice-service";
 import { StatusProcess, toBaseResponse } from "../model";
 import { sendMessage } from "../helpers/rabbit-connect";
 import { env } from "../config/config";
+import { logger } from "../helpers/logging";
 
 
 export const router = (app: Express, channel: ChannelWrapper) : void => {
@@ -71,6 +72,7 @@ export const router = (app: Express, channel: ChannelWrapper) : void => {
     app.get('/ping', (req: Request, res: Response, next: NextFunction) => {
 
         try {
+            logger.info('Health-check')
 
             res.status(200).json({ message: 'pong' })
             
