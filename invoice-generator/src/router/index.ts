@@ -1,7 +1,7 @@
 import { ChannelWrapper } from "amqp-connection-manager";
 import { Express, Request, Response, NextFunction } from "express";
 import { InvoiceService } from "../service/invoice-service";
-import { StatusProcess, toBaseResponse } from "../model";
+import { StatusProcess, toBaseResponse, toBaseResponseNULL } from "../model";
 import { sendMessage } from "../helpers/rabbit-connect";
 import { env } from "../config/config";
 import { logger } from "../helpers/logging";
@@ -13,10 +13,10 @@ export const router = (app: Express, channel: ChannelWrapper) : void => {
 
         try {
             const id_invoice = req.params.id_invoice;
-
+            
             const isGenerated = await InvoiceService.getStatus(id_invoice);
-
-            if (isGenerated) {
+            
+            if (isGenerated !== null ) {
                 
                 const response : StatusProcess = {
                     id_invoice: isGenerated.id_invoice,
@@ -29,8 +29,11 @@ export const router = (app: Express, channel: ChannelWrapper) : void => {
                 res.status(200).json(toBaseResponse(true, 200, 'Invoice has been generated', response));
                 return;
             }
-    
+            
             const invoice = await InvoiceService.getInvoice(id_invoice);
+            // console.log(id_invoice);
+            // console.log(invoice);
+            
             const template = await InvoiceService.getTemplate(id_invoice);
             const generatedHtml = InvoiceService.generateHtml(template.html_template, invoice);
             const filename = InvoiceService.generateFilename(id_invoice);
@@ -62,7 +65,13 @@ export const router = (app: Express, channel: ChannelWrapper) : void => {
         try {
             const id_invoice = req.params.id_invoice;
             const status = await InvoiceService.getStatus(id_invoice);
-            res.send(status.html_generated);
+
+            if (status !== null ) {
+                res.send(status.html_generated);
+            } else {
+                res.status(404).json(toBaseResponseNULL(false, 404, 'Data not found', null))
+            }
+
 
         } catch (error) {
             next(error);

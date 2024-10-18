@@ -19,12 +19,12 @@ export type DbResult = {
 };
 
 export type InvoiceItems = {
-    description: string;
     price: number;
+    description: string;
 }
 
 export type InvoiceData = {
-    invoice_number: string,
+    id_invoice: string,
     invoice_date: string,
     due_date: string,
     client_name: string,
@@ -45,6 +45,13 @@ export type BaseResponse = {
     data: StatusProcess
 }
 
+export type BaseResponseNULL = {
+    success: boolean;
+    code: number;
+    message: string;
+    data: null
+}
+
 
 export const toDbResult = (data: object , error: string | null ) : DbResult => {
     return {
@@ -58,6 +65,15 @@ export const toBaseResponse = (success: boolean, code: number, message: string, 
         success: success,
         code: code,
         message: message,
-        data: data
+        data: data 
+    }
+}
+
+export const toBaseResponseNULL = (success: boolean, code: number, message: string, data: null) : BaseResponseNULL => {
+    return {
+        success: success,
+        code: code,
+        message: message,
+        data: null
     }
 }

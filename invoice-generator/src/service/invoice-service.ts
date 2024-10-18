@@ -9,7 +9,7 @@ export class InvoiceService {
 
     static async getInvoice(id_invoice: string) : Promise<InvoiceData>  {
 
-        const query = 'SELECT * FROM oss_rba_comoss.form_datas WHERE id_invoice = $1';
+        const query = 'SELECT * FROM invoice_data.invoice_datas WHERE id_invoice = $1';
         const values = [id_invoice];
 
         const result = await pool.query(query, values);
@@ -19,11 +19,14 @@ export class InvoiceService {
         }
         
         const row = result.rows[0];
-
-        const items: InvoiceItems[] = JSON.parse(row.items);
+        
+        console.log(typeof(row.items));
+        
+        // const items: InvoiceItems[] = JSON.parse(row.items);
+        const items: InvoiceItems[] = row.items;
 
         const invoiceData: InvoiceData = {
-            invoice_number: row.invoice_number,
+            id_invoice: row.id_invoice,
             invoice_date: row.invoice_date,
             due_date: row.due_date,
             client_name: row.client_name,
@@ -68,13 +71,14 @@ export class InvoiceService {
         return data;
     }
 
-    static async getStatus(id_invoice: string) : Promise<HydratedDocument<StatusProcess>>  {
+    static async getStatus(id_invoice: string) : Promise<HydratedDocument<StatusProcess> | null >  {
 
         const result = await status_html.findOne({ id_invoice: id_invoice });
 
-        if (!result) {
-            throw new ResponseError(404, `Template HTML for ${id_invoice} not found`)
-        }
+
+        // if (!result) {
+        //     throw new ResponseError(404, `Status HTML for ${id_invoice} not found`)
+        // }
         
         return result;
     }
@@ -83,13 +87,13 @@ export class InvoiceService {
         return items.map(item => `
             <tr class="item">
                 <td>${item.description}</td>
-                <td>$${item.price.toFixed(2)}</td>
+                <td>$${item.price}</td>
             </tr>
         `).join('');
     }
 
     static generateHtml(template: string, invoiceData: InvoiceData): string {
-        return template.replace('{invoice_number}', invoiceData.invoice_number)
+        return template.replace('{id_invoice}', invoiceData.id_invoice)
                         .replace('{invoice_date}', invoiceData.invoice_date)
                         .replace('{due_date}', invoiceData.due_date)
                         .replace('{client_name}', invoiceData.client_name)
@@ -107,7 +111,7 @@ export class InvoiceService {
 
         const code = '0001';
 
-        const filename = `lamp_${code}_${id_invoice}.pdf`;
+        const filename = `invoice_${code}_${id_invoice}.pdf`;
         
         return filename;
     }

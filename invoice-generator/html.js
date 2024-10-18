@@ -96,7 +96,7 @@ let templateHTML = `<!DOCTYPE html>
                         <h1>Invoice</h1>
                     </td>
                     <td>
-                        Invoice #: {invoice_number}<br>
+                        Invoice #: {id_invoice}<br>
                         Date: {invoice_date}<br>
                         Due: {due_date}
                     </td>

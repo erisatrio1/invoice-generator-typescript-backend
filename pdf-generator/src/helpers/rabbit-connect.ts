@@ -30,9 +30,9 @@ export const ConsumeMessage = (connection :AmqpConnectionManager, bucketName : s
                 if (!msg) return;
 
                 const messageArray = JSON.parse(msg.content.toString());
-                logger.info(`Received: ${messageArray.link}`);
+                logger.info(`Received: ${messageArray.link_html}`);
                 try {
-                    await InvoiceGenerator.downloadPDF(browser, messageArray.link, bucketName, messageArray.filename, messageArray.id_invoice );
+                    await InvoiceGenerator.downloadPDF(browser, messageArray.link_html, bucketName, messageArray.filename, messageArray.id_invoice );
                     channel.ack(msg); 
                 } catch (error) {
                     logger.error(` Error downloading ${messageArray.link}:`, { error: error instanceof Error ? error.message : error });
